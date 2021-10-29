@@ -24,6 +24,49 @@ async function run() {
           await client.connect();
           console.log("Database connect Succesfully");
 
+          const database = client.db("tourism_DB");
+          const placeCollection = database.collection("places");
+          const bookingCollection = database.collection("booking");
+
+          //GET API
+          app.get('/places', async(req, res)=>{
+               const cursor = placeCollection.find({});
+               const result = await cursor.toArray();
+               res.json(result);
+          })
+
+          //Place Booking
+          app.post('/placeBooking', async(req, res)=>{
+                    const bookingPlace = req.body;
+                    const result = await bookingCollection.insertOne(bookingPlace)
+                    res.json(result)
+          })
+
+          //Get bookin
+          app.get('/myAllBooking/:email', async(req, res)=>{
+               const result = await bookingCollection.find({
+                    email: req.params.email,
+               }).toArray()
+               res.send(result);
+          })
+
+          //Delete Api
+          app.delete ('/myBooking/:id', async(req, res)=>{
+               const id = req.params.id;
+               const qurey = { _id: ObjectId(id)};
+               const result = await bookingCollection.deleteOne(qurey)
+               res.json(result)
+          })
+
+          //GET API with id
+          app.get('/places/:id', async(req, res)=>{
+               const id = req.params.id;
+               const query = { _id: ObjectId(id)};
+               const result = await placeCollection.findOne(query);
+               res.json(result);
+          })
+
+
      }
      finally{
           // await client.close();
